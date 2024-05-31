@@ -1,5 +1,5 @@
 const SAMPLE_RATE = 48000;
-const useGROQ = false;
+const useGROQ = true;
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
@@ -15,9 +15,12 @@ function deferredPromise() {
 
 const getTranslation = async (text, openAiKey) => {
     let baseUrl = 'https://api.openai.com/v1';
+    let model = 'gpt-4o';
     if (useGROQ) { // not working
         baseUrl = 'https://api.groq.com/openai/v1'
+        model = 'llama3-8b-8192';
     }
+
     const url = `${baseUrl}/chat/completions`;
     const response = await fetch(url, {
         method: 'POST',
@@ -36,7 +39,7 @@ const getTranslation = async (text, openAiKey) => {
                     "content": `${text}`
                 }
             ],
-            model: "gpt-4o"
+            model
         })
     });
 
@@ -255,7 +258,7 @@ form.addEventListener('submit', async (evt) => {
                 console.log("esto seria la traduccion", translation)
                 finalsContainer.textContent += translation;
                 // if data.transcription finish with a . or ? or ! then we add a new line
-                if (data.transcription.slice(-1) === '.' || data.transcription.slice(-1) === '?' || data.transcription.slice(-1) === '!') {
+                if (finalsContainer.textContent.slice(-1) === '.' || finalsContainer.textContent.slice(-1) === '?' || finalsContainer.textContent.slice(-1) === '!') {
                     finalsContainer.textContent += '\n';
                 } else {
                     finalsContainer.textContent += ' ';

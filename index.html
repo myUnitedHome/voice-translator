@@ -1,38 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Gladia - Streaming</title>
-
-    <!-- We are using a 3rd party library to record audio as WAV on every browser. -->
-    <!-- Each browser uses its own audio encoding and some of them are not compatible. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js"></script>
-
     <style>
         body {
             margin: 1rem;
+            font-family: Arial, sans-serif; /* Improved readability */
         }
 
         form {
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto; /* Centers the form on the page */
+            padding: 1rem;
+            border: 1px solid #ccc; /* Adds border for visual structure */
+            border-radius: 8px; /* Rounded corners for modern look */
+            background: #f8f8f8; /* Light grey background for the form area */
         }
 
-        form>div {
+        form > div {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
 
-        form,
-        #result {
-            box-sizing: border-box;
-            max-width: 500px;
-            margin: 0 auto;
+        input, select {
+            padding: 8px;
+            border: 1px solid #aaa;
+            border-radius: 4px; /* Rounded borders on inputs */
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Darker shade on hover */
+        }
+
+        button:disabled {
+            background: #ccc;
         }
 
         #result {
@@ -43,7 +61,6 @@
         }
     </style>
 </head>
-
 <body>
     <form id="form">
         <div>
@@ -51,17 +68,15 @@
             <input id="gladia_key" name="gladia_key" type="password" placeholder="Gladia API key" required />
         </div>
         <div>
-            <label for="openai_key">Open APi key</label>
+            <label for="openai_key">OpenAI Key</label>
             <input id="openai_key" name="openai_key" type="password" placeholder="OpenAI Key" required />
         </div>
         <div>
             <label for="input_device">Audio input device</label>
             <select id="input_device" name="input_device" required disabled></select>
         </div>
-        <button type="submit">Start recording</button>
-        <button type="button" style="color: white;" disabled>
-            Stop recording
-        </button>
+        <button type="submit">Start Recording</button>
+        <button type="button" disabled>Stop Recording</button>
     </form>
 
     <div id="result" style="display: none;">
@@ -70,7 +85,5 @@
     </div>
 
     <script src="index.js"></script>
-
 </body>
-
 </html>
