@@ -143,7 +143,9 @@ form.addEventListener('submit', async (evt) => {
   const stop = () => {
     submitButton.removeAttribute('disabled');
     submitButton.style.display = 'block';
-    submitButton.textContent = 'Start recording';
+
+    submitButton.textContent = 'Start';
+    // Agregar el ícono al final del botón
 
     stopButton.setAttribute('disabled', 'true');
     stopButton.style.backgroundColor = '';
