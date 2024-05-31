@@ -1,76 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <title>Gladia - Streaming</title>
-
+    <link rel="stylesheet" href="style.css" />
     <!-- We are using a 3rd party library to record audio as WAV on every browser. -->
     <!-- Each browser uses its own audio encoding and some of them are not compatible. -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/RecordRTC/5.6.2/RecordRTC.js"></script>
+  </head>
 
-    <style>
-        body {
-            margin: 1rem;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        form>div {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        form,
-        #result {
-            box-sizing: border-box;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        #result {
-            margin-top: 1rem;
-            border-top: 1px solid #333;
-            padding-top: 1rem;
-            text-align: justify;
-        }
-    </style>
-</head>
-
-<body>
-    <form id="form">
+  <body>
+    <div id="container">
+      <form id="form">
         <div>
-            <label for="gladia_key">Gladia API key</label>
-            <input id="gladia_key" name="gladia_key" type="password" placeholder="Gladia API key" required />
+          <label for="gladia_key">Gladia API key</label>
+          <input
+            id="gladia_key"
+            name="gladia_key"
+            type="password"
+            placeholder="Gladia API key"
+            required
+          />
         </div>
         <div>
-            <label for="openai_key">Open APi key</label>
-            <input id="openai_key" name="openai_key" type="password" placeholder="OpenAI Key" required />
+          <label for="openai_key">Open APi key</label>
+          <input
+            id="openai_key"
+            name="openai_key"
+            type="password"
+            placeholder="OpenAI Key"
+            required
+          />
         </div>
         <div>
-            <label for="input_device">Audio input device</label>
-            <select id="input_device" name="input_device" required disabled></select>
+          <label for="input_device">Audio input device</label>
+          <select
+            id="input_device"
+            name="input_device"
+            required
+            disabled
+          ></select>
         </div>
         <button type="submit">Start recording</button>
-        <button type="button" style="color: white;" disabled>
-            Stop recording
+        <button type="button" style="color: white" disabled>
+          Stop recording
         </button>
-    </form>
+      </form>
 
-    <div id="result" style="display: none;">
+      <div id="result" style="display: none">
         <span id="finals"></span>
-        <span style="color: red;" id="partials"></span>
+        <span style="color: red" id="partials"></span>
+      </div>
+
+      <script src="index.js"></script>
     </div>
-
-    <script src="index.js"></script>
-
-</body>
-
+  </body>
 </html>
