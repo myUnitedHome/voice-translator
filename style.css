@@ -111,3 +111,22 @@ button.recordingIndicator {
   display: none; /* Inicialmente oculto */
   animation: pulse 1s infinite alternate; /* Agrega la animación */
 }
+
+@media (max-width: 768px) {
+  .form-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: row;
+    width: 70%;
+    justify-content: space-between;
+  }
+
+  button {
+    /* margin-left: 0; */
+    width: 100%;
+  }
+}

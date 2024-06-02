@@ -132,6 +132,8 @@ const resultContainer = document.querySelector('#result');
 const finalsContainer = document.querySelector('#finals');
 /** @type {HTMLSpanElement} */
 const partialsContainer = document.querySelector('#partials');
+const apiGladiaDiv = document.getElementById('apiglad');
+const apiOpenAIDiv = document.getElementById('openapi');
 
 form.addEventListener('submit', async (evt) => {
   evt.preventDefault();
@@ -168,6 +170,9 @@ form.addEventListener('submit', async (evt) => {
     finalsContainer.textContent = '';
     partialsContainer.textContent = '';
   });
+
+  //   apiGladiaDiv.remove();
+  //   apiOpenAIDiv.remove();
 
   const stop = () => {
     submitButton.removeAttribute('disabled');
