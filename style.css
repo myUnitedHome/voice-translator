@@ -104,3 +104,10 @@ button {
   margin-right: 0.5rem;
   font-size: 1.5rem;
 }
+
+button.recordingIndicator {
+  color: red;
+  margin-left: 5px;
+  display: none; /* Inicialmente oculto */
+  animation: pulse 1s infinite alternate; /* Agrega la animación */
+}

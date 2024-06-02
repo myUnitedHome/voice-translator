@@ -122,6 +122,10 @@ const form = document.querySelector('#form');
 const submitButton = document.querySelector('button[type="submit"]');
 /** @type {HTMLButtonElement} */
 const stopButton = document.querySelector('button[type="button"]');
+
+const recordingIndicator = document.querySelector('#recordingIndicator');
+/** @type {HTMLButtonElement} */
+const clearButton = document.querySelector('#clearButton');
 /** @type {HTMLDivElement} */
 const resultContainer = document.querySelector('#result');
 /** @type {HTMLSpanElement} */
@@ -158,6 +162,12 @@ form.addEventListener('submit', async (evt) => {
   let recorder;
   /** @type {WebSocket | undefined} */
   let socket;
+
+  clearButton.addEventListener('click', () => {
+    // Limpia el contenido de los contenedores de texto
+    finalsContainer.textContent = '';
+    partialsContainer.textContent = '';
+  });
 
   const stop = () => {
     submitButton.removeAttribute('disabled');
