@@ -57,6 +57,11 @@ button {
   padding: 5px 10px;
   font-size: 1rem;
   border-radius: 12px; /* Bordes más redondeados para botones */
+  background-color: transparent;
+  color: white;
+  border-color: white;
+  margin-top: 0.8rem;
+  margin-left: 1rem;
 }
 
 #result {
