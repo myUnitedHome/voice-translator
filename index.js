@@ -51,7 +51,11 @@ function checkAndResetContainer(container) {
   const maxHeight = window.innerHeight * 0.7; // Ajusta este valor según necesites
 
   if (containerHeight >= maxHeight) {
-    container.textContent = ''; // Limpiar el contenido del contenedor
+    // Agregar un retraso antes de limpiar la pantalla
+    setTimeout(() => {
+      // Limpiar la pantalla después de 3 segundos (3000 milisegundos)
+      container.textContent = ''; // Limpiar el contenido del contenedor
+    }, 5000);
   }
 }
 
@@ -136,6 +140,7 @@ form.addEventListener('submit', async (evt) => {
   const inputDevice = formData.get('input_device');
 
   let formMovedToTop = false;
+  const partialWords = [];
 
   // Guardar el contenido inicial del botón "Start"
   const initialSubmitButtonContent = submitButton.innerHTML;
