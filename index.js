@@ -126,6 +126,11 @@ form.addEventListener('submit', async (evt) => {
 
   const inputDevice = formData.get('input_device');
 
+  let formMovedToTop = false;
+
+  // Guardar el contenido inicial del botón "Start"
+  const initialSubmitButtonContent = submitButton.innerHTML;
+
   // Update the UI
   submitButton.setAttribute('disabled', 'true');
   submitButton.textContent = 'Waiting for connection...';
@@ -144,8 +149,7 @@ form.addEventListener('submit', async (evt) => {
     submitButton.removeAttribute('disabled');
     submitButton.style.display = 'block';
 
-    submitButton.textContent = 'Start';
-    // Agregar el ícono al final del botón
+    submitButton.innerHTML = initialSubmitButtonContent;
 
     stopButton.setAttribute('disabled', 'true');
     stopButton.style.backgroundColor = '';
@@ -288,4 +292,12 @@ form.addEventListener('submit', async (evt) => {
 
   // Start the recording
   recorder.startRecording();
+
+  if (!formMovedToTop) {
+    form.style.position = 'absolute';
+    form.style.top = '10px';
+    form.style.left = '10px';
+    form.style.transform = 'translateY(0)';
+    formMovedToTop = true;
+  }
 });
