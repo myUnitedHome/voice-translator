@@ -48,14 +48,14 @@ const getTranslation = async (text, openAiKey) => {
 
 function checkAndResetContainer(container) {
   const containerHeight = container.offsetHeight;
-  const maxHeight = window.innerHeight * 0.7; // Ajusta este valor según necesites
+  const maxHeight = window.innerHeight * 0.3; // Ajusta este valor según necesites
 
   if (containerHeight >= maxHeight) {
     // Agregar un retraso antes de limpiar la pantalla
     setTimeout(() => {
       // Limpiar la pantalla después de 3 segundos (3000 milisegundos)
       container.textContent = ''; // Limpiar el contenido del contenedor
-    }, 5000);
+    }, 6000);
   }
 }
 
@@ -277,18 +277,44 @@ form.addEventListener('submit', async (evt) => {
     console.error(message);
     stop();
   };
+
+  //   socket.onmessage = async (event) => {
+  //     const data = JSON.parse(event.data);
+  //     console.log(data);
+  //     if (data?.event === 'transcript' && data.transcription) {
+  //       if (data.type === 'final') {
+  //         // finalsContainer.textContent += data.transcription;
+  //         // partialsContainer.textContent = '';
+  //         // console.log("esto seria lo final", data.transcription)
+  //         const translation = await getTranslation(data.transcription, openAiKey);
+  //         console.log('esto seria la traduccion', translation);
+  //         finalsContainer.textContent += translation;
+  //         // if data.transcription finish with a . or ? or ! then we add a new line
+  //         if (
+  //           data.transcription.slice(-1) === '.' ||
+  //           data.transcription.slice(-1) === '?' ||
+  //           data.transcription.slice(-1) === '!'
+  //         ) {
+  //           finalsContainer.textContent += '\n';
+  //         } else {
+  //           finalsContainer.textContent += ' ';
+  //         }
+  //         partialsContainer.textContent = '';
+  //         checkAndResetContainer(finalsContainer);
+  //       } else {
+  //         partialsContainer.textContent = data.transcription + '';
+  //         checkAndResetContainer(finalsContainer);
+  //       }
+  //     }
+  //   };
+
   socket.onmessage = async (event) => {
     const data = JSON.parse(event.data);
-    console.log(data);
     if (data?.event === 'transcript' && data.transcription) {
       if (data.type === 'final') {
-        // finalsContainer.textContent += data.transcription;
-        // partialsContainer.textContent = '';
-        // console.log("esto seria lo final", data.transcription)
         const translation = await getTranslation(data.transcription, openAiKey);
-        console.log('esto seria la traduccion', translation);
         finalsContainer.textContent += translation;
-        // if data.transcription finish with a . or ? or ! then we add a new line
+        // Agrega un salto de línea si el texto final no termina con un signo de puntuación
         if (
           data.transcription.slice(-1) === '.' ||
           data.transcription.slice(-1) === '?' ||
@@ -298,10 +324,6 @@ form.addEventListener('submit', async (evt) => {
         } else {
           finalsContainer.textContent += ' ';
         }
-        partialsContainer.textContent = '';
-        checkAndResetContainer(finalsContainer);
-      } else {
-        partialsContainer.textContent = data.transcription + '';
         checkAndResetContainer(finalsContainer);
       }
     }
