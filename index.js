@@ -46,6 +46,15 @@ const getTranslation = async (text, openAiKey) => {
   return result.choices[0].message.content.trim();
 };
 
+function checkAndResetContainer(container) {
+  const containerHeight = container.offsetHeight;
+  const maxHeight = window.innerHeight * 0.7; // Ajusta este valor según necesites
+
+  if (containerHeight >= maxHeight) {
+    container.textContent = ''; // Limpiar el contenido del contenedor
+  }
+}
+
 // Initialize the audio input devices
 async function listAudioDevices() {
   /** @type {HTMLSelectElement} */
@@ -275,8 +284,10 @@ form.addEventListener('submit', async (evt) => {
           finalsContainer.textContent += ' ';
         }
         partialsContainer.textContent = '';
+        checkAndResetContainer(finalsContainer);
       } else {
         partialsContainer.textContent = data.transcription + '';
+        checkAndResetContainer(finalsContainer);
       }
     }
   };
