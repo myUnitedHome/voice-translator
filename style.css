@@ -141,4 +141,14 @@ button.recordingIndicator {
     /* margin-left: 0; */
     width: 100%;
   }
+
+  #result {
+    margin-top: 20rem;
+  }
+
+  #partials,
+  #finals,
+  #result {
+    font-size: 2rem;
+  }
 }
