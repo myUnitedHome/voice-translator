@@ -75,6 +75,7 @@ button {
   border-color: white;
   margin-top: 0.8rem;
   margin-left: 1rem;
+  white-space: nowrap;
 }
 
 #result {
@@ -143,7 +144,7 @@ button.recordingIndicator {
   }
 
   #result {
-    margin-top: 20rem;
+    margin-top: 18rem;
   }
 
   #partials,
