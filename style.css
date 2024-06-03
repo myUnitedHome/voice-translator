@@ -144,7 +144,9 @@ button.recordingIndicator {
   }
 
   #result {
-    margin-top: 18rem;
+    padding-top: 0.5rem;
+    min-height: 70vh;
+    margin-top: 19rem;
   }
 
   #partials,
