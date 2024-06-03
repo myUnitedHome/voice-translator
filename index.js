@@ -132,11 +132,21 @@ const resultContainer = document.querySelector('#result');
 const finalsContainer = document.querySelector('#finals');
 /** @type {HTMLSpanElement} */
 const partialsContainer = document.querySelector('#partials');
-const apiGladiaDiv = document.getElementById('apiglad');
-const apiOpenAIDiv = document.getElementById('openapi');
+/** @type {HTMLInputGroupElement} */
+const apiGladiaDiv = document.querySelector('#apiglad');
+const apiOpenAIDiv = document.querySelector('#openapi');
+/** @type {HTMLSelectGroupElement} */
+const deviceItem = document.querySelector('#deviceitem');
+
+const keysAndDevice = document.querySelector('.keys-and-device');
 
 form.addEventListener('submit', async (evt) => {
   evt.preventDefault();
+
+  apiGladiaDiv.classList.add('hidden');
+  apiOpenAIDiv.classList.add('hidden');
+  keysAndDevice.classList.add('centered');
+  deviceItem.classList.add('device');
 
   // Parse submitted data
   const formData = new FormData(form);
@@ -170,9 +180,6 @@ form.addEventListener('submit', async (evt) => {
     finalsContainer.textContent = '';
     partialsContainer.textContent = '';
   });
-
-  //   apiGladiaDiv.remove();
-  //   apiOpenAIDiv.remove();
 
   const stop = () => {
     submitButton.removeAttribute('disabled');

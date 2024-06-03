@@ -112,6 +112,18 @@ button.recordingIndicator {
   animation: pulse 1s infinite alternate; /* Agrega la animación */
 }
 
+.hidden {
+  display: none;
+}
+
+.centered {
+  margin-top: 3rem;
+}
+
+/* .device {
+  margin-top: 25rem;
+} */
+
 @media (max-width: 768px) {
   .form-container {
     flex-direction: column;
