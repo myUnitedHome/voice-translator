@@ -91,9 +91,11 @@ button {
 }
 
 #partials,
+#partials,
 #finals,
 #result {
-  font-size: 4rem;
+  font-size: 4rem; /* Ajusta el tamaño de fuente según sea necesario */
+  /* white-space: pre-wrap; Mantener los saltos de línea */
 }
 
 #microphone {

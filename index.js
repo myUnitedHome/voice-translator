@@ -1,6 +1,6 @@
 // const SAMPLE_RATE = 48000;
 const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
-
+const MAX_LINES = 4;
 const useGROQ = false;
 
 /**
@@ -49,15 +49,11 @@ const getTranslation = async (text, openAiKey) => {
 };
 
 function checkAndResetContainer(container) {
-  const containerHeight = container.offsetHeight;
-  const maxHeight = window.innerHeight * 0.3; // Ajusta este valor según necesites
-
-  if (containerHeight >= maxHeight) {
-    // Agregar un retraso antes de limpiar la pantalla
+  const lines = container.textContent.split('\n');
+  if (lines.length >= MAX_LINES) {
     setTimeout(() => {
-      // Limpiar la pantalla después de 3 segundos (3000 milisegundos)
       container.textContent = ''; // Limpiar el contenido del contenedor
-    }, 6000);
+    }, 5000); // Esperar 3 segundos antes de limpiar la pantalla
   }
 }
 
@@ -369,7 +365,8 @@ form.addEventListener('submit', async (evt) => {
     if (data?.event === 'transcript' && data.transcription) {
       if (data.type === 'final') {
         const translation = await getTranslation(data.transcription, openAiKey);
-        finalsContainer.textContent += translation;
+        finalsContainer.textContent += translation + '\n';
+        checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
       } else if (data.type === 'partial') {
         partialsContainer.textContent = await getTranslation(
           data.transcription,
