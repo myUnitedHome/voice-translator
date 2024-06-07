@@ -1,4 +1,6 @@
-const SAMPLE_RATE = 48000;
+// const SAMPLE_RATE = 48000;
+const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
+
 const useGROQ = false;
 
 /**
@@ -212,12 +214,20 @@ form.addEventListener('submit', async (evt) => {
     );
     socket.onopen = () => {
       // Check https://docs.gladia.io/reference/live-audio for more information about the parameters
+      // const configuration = {
+      //   x_gladia_key: gladiaKey,
+      //   frames_format: 'bytes',
+      //   language_behaviour: 'automatic single language',
+      //   sample_rate: SAMPLE_RATE,
+      //   translation: true,
+      // };
       const configuration = {
         x_gladia_key: gladiaKey,
         frames_format: 'bytes',
         language_behaviour: 'automatic single language',
         sample_rate: SAMPLE_RATE,
         translation: true,
+        intermediate_results: true, // Habilitar resultados intermedios para traducción en tiempo real
       };
       socket.send(JSON.stringify(configuration));
     };
@@ -256,14 +266,28 @@ form.addEventListener('submit', async (evt) => {
     });
 
     // Initializes the recorder
+    // recorder = new RecordRTC(audioStream, {
+    //   type: 'audio',
+    //   mimeType: 'audio/wav',
+    //   recorderType: RecordRTC.StereoAudioRecorder,
+    //   timeSlice: 1000,
+    //   async ondataavailable(blob) {
+    //     const buffer = await blob.arrayBuffer();
+    //     // Remove WAV header
+    //     const modifiedBuffer = buffer.slice(44);
+    //     socket?.send(modifiedBuffer);
+    //   },
+    //   sampleRate: SAMPLE_RATE,
+    //   desiredSampRate: SAMPLE_RATE,
+    //   numberOfAudioChannels: 1,
+    // });
     recorder = new RecordRTC(audioStream, {
       type: 'audio',
       mimeType: 'audio/wav',
       recorderType: RecordRTC.StereoAudioRecorder,
-      timeSlice: 1000,
+      timeSlice: 500, // Intervalo más corto para fragmentos de audio
       async ondataavailable(blob) {
         const buffer = await blob.arrayBuffer();
-        // Remove WAV header
         const modifiedBuffer = buffer.slice(44);
         socket?.send(modifiedBuffer);
       },
@@ -320,23 +344,37 @@ form.addEventListener('submit', async (evt) => {
   //     }
   //   };
 
+  // socket.onmessage = async (event) => {
+  //   const data = JSON.parse(event.data);
+  //   if (data?.event === 'transcript' && data.transcription) {
+  //     if (data.type === 'final') {
+  //       const translation = await getTranslation(data.transcription, openAiKey);
+  //       finalsContainer.textContent += translation;
+  //       // Agrega un salto de línea si el texto final no termina con un signo de puntuación
+  //       if (
+  //         data.transcription.slice(-1) === '.' ||
+  //         data.transcription.slice(-1) === '?' ||
+  //         data.transcription.slice(-1) === '!'
+  //       ) {
+  //         finalsContainer.textContent += '\n';
+  //       } else {
+  //         finalsContainer.textContent += ' ';
+  //       }
+  //       checkAndResetContainer(finalsContainer);
+  //     }
+  //   }
+  // };
   socket.onmessage = async (event) => {
     const data = JSON.parse(event.data);
     if (data?.event === 'transcript' && data.transcription) {
       if (data.type === 'final') {
         const translation = await getTranslation(data.transcription, openAiKey);
         finalsContainer.textContent += translation;
-        // Agrega un salto de línea si el texto final no termina con un signo de puntuación
-        if (
-          data.transcription.slice(-1) === '.' ||
-          data.transcription.slice(-1) === '?' ||
-          data.transcription.slice(-1) === '!'
-        ) {
-          finalsContainer.textContent += '\n';
-        } else {
-          finalsContainer.textContent += ' ';
-        }
-        checkAndResetContainer(finalsContainer);
+      } else if (data.type === 'partial') {
+        partialsContainer.textContent = await getTranslation(
+          data.transcription,
+          openAiKey
+        );
       }
     }
   };
