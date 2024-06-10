@@ -1,7 +1,8 @@
 // const SAMPLE_RATE = 48000;
 const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
 const MAX_LINES = 4;
-const useGROQ = false;
+////
+const useGROQ = true;
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
@@ -17,10 +18,13 @@ function deferredPromise() {
 
 const getTranslation = async (text, openAiKey) => {
   let baseUrl = 'https://api.openai.com/v1';
+  let model = 'gpt-4o';
   if (useGROQ) {
     // not working
     baseUrl = 'https://api.groq.com/openai/v1';
+    model = 'llama3-8b-8192';
   }
+
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
     method: 'POST',
@@ -40,7 +44,7 @@ const getTranslation = async (text, openAiKey) => {
           content: `${text}`,
         },
       ],
-      model: 'gpt-4o',
+      model,
     }),
   });
 
@@ -53,7 +57,7 @@ function checkAndResetContainer(container) {
   if (lines.length >= MAX_LINES) {
     setTimeout(() => {
       container.textContent = ''; // Limpiar el contenido del contenedor
-    }, 5000); // Esperar 3 segundos antes de limpiar la pantalla
+    }, 7000); // Esperar 3 segundos antes de limpiar la pantalla
   }
 }
 
@@ -148,9 +152,10 @@ form.addEventListener('submit', async (evt) => {
 
   // Parse submitted data
   const formData = new FormData(form);
-  const gladiaKey = formData.get('gladia_key');
-  const openAiKey = formData.get('openai_key');
-
+  // const gladiaKey = formData.get('gladia_key');
+  // const openAiKey = formData.get('openai_key');
+  const gladiaKey = 'c18b9e67-c9c1-487f-a9e9-639593caa50c';
+  const openAiKey = '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';
   const inputDevice = formData.get('input_device');
 
   let formMovedToTop = false;
@@ -164,7 +169,7 @@ form.addEventListener('submit', async (evt) => {
   submitButton.textContent = 'Waiting for connection...';
   resultContainer.style.display = 'none';
   finalsContainer.textContent = '';
-  partialsContainer.textContent = '...';
+  // partialsContainer.textContent = '...';
 
   /** @type {MediaStream | undefined} */
   let audioStream;
@@ -362,12 +367,13 @@ form.addEventListener('submit', async (evt) => {
   // };
   socket.onmessage = async (event) => {
     const data = JSON.parse(event.data);
+    console.log('this is DATA', data);
     if (data?.event === 'transcript' && data.transcription) {
       if (data.type === 'final') {
         const translation = await getTranslation(data.transcription, openAiKey);
         finalsContainer.textContent += translation + '\n';
         checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
-      } else if (data.type === 'partial') {
+      } else if (data.type === 'partial' && data.confidence >= 0.8) {
         partialsContainer.textContent = await getTranslation(
           data.transcription,
           openAiKey

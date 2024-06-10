@@ -91,10 +91,9 @@ button {
 }
 
 #partials,
-#partials,
 #finals,
 #result {
-  font-size: 4rem; /* Ajusta el tamaño de fuente según sea necesario */
+  font-size: 2rem; /* Ajusta el tamaño de fuente según sea necesario */
   /* white-space: pre-wrap; Mantener los saltos de línea */
 }
 
