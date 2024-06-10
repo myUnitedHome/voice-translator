@@ -387,13 +387,13 @@ form.addEventListener('submit', async (evt) => {
           partialsContainer.textContent = '';
           lastPartial = '';
         }
-        checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
+        // checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        lastPartial = data.transcription;
-        partialsContainer.textContent = await getTranslation(
-          data.transcription,
-          openAiKey
-        );
+        // lastPartial = data.transcription;
+        // partialsContainer.textContent = await getTranslation(
+        //   data.transcription,
+        //   openAiKey
+        // );
       }
     }
   };
