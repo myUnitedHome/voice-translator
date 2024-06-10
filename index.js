@@ -2,7 +2,7 @@
 const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
 const MAX_LINES = 4;
 ////
-const useGROQ = true;
+const useGROQ = false;
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
@@ -20,7 +20,6 @@ const getTranslation = async (text, openAiKey) => {
   let baseUrl = 'https://api.openai.com/v1';
   let model = 'gpt-4o';
   if (useGROQ) {
-    // not working
     baseUrl = 'https://api.groq.com/openai/v1';
     model = 'llama3-8b-8192';
   }
@@ -52,12 +51,19 @@ const getTranslation = async (text, openAiKey) => {
   return result.choices[0].message.content.trim();
 };
 
+// function checkAndResetContainer(container) {
+//   const lines = container.textContent.split('\n');
+//   if (lines.length >= MAX_LINES) {
+//     setTimeout(() => {
+//       container.textContent = ''; // Limpiar el contenido del contenedor
+//     }, 10000); // Esperar 3 segundos antes de limpiar la pantalla
+//   }
+// }
+
 function checkAndResetContainer(container) {
   const lines = container.textContent.split('\n');
   if (lines.length >= MAX_LINES) {
-    setTimeout(() => {
-      container.textContent = ''; // Limpiar el contenido del contenedor
-    }, 7000); // Esperar 3 segundos antes de limpiar la pantalla
+    container.textContent = ''; // Limpiar el contenido del contenedor solo cuando se superen las 4 líneas
   }
 }
 
@@ -152,10 +158,9 @@ form.addEventListener('submit', async (evt) => {
 
   // Parse submitted data
   const formData = new FormData(form);
-  // const gladiaKey = formData.get('gladia_key');
-  // const openAiKey = formData.get('openai_key');
-  const gladiaKey = 'c18b9e67-c9c1-487f-a9e9-639593caa50c';
-  const openAiKey = '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';
+  const gladiaKey = formData.get('gladia_key');
+  const openAiKey = formData.get('openai_key');
+
   const inputDevice = formData.get('input_device');
 
   let formMovedToTop = false;
@@ -282,11 +287,14 @@ form.addEventListener('submit', async (evt) => {
     //   desiredSampRate: SAMPLE_RATE,
     //   numberOfAudioChannels: 1,
     // });
+
     recorder = new RecordRTC(audioStream, {
       type: 'audio',
-      mimeType: 'audio/wav',
+      // mimeType: 'audio/wav',
+      mimeType: 'audio/webm;codecs=opus',
       recorderType: RecordRTC.StereoAudioRecorder,
-      timeSlice: 500, // Intervalo más corto para fragmentos de audio
+      // timeSlice: 500, // Intervalo más corto para fragmentos de audio
+      timeSlice: 350,
       async ondataavailable(blob) {
         const buffer = await blob.arrayBuffer();
         const modifiedBuffer = buffer.slice(44);
@@ -365,6 +373,8 @@ form.addEventListener('submit', async (evt) => {
   //     }
   //   }
   // };
+  let lastPartial = '';
+
   socket.onmessage = async (event) => {
     const data = JSON.parse(event.data);
     console.log('this is DATA', data);
@@ -372,8 +382,14 @@ form.addEventListener('submit', async (evt) => {
       if (data.type === 'final') {
         const translation = await getTranslation(data.transcription, openAiKey);
         finalsContainer.textContent += translation + '\n';
+        // partialsContainer.textContent = '';
+        if (data.transcription.includes(lastPartial)) {
+          partialsContainer.textContent = '';
+          lastPartial = '';
+        }
         checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
+        lastPartial = data.transcription;
         partialsContainer.textContent = await getTranslation(
           data.transcription,
           openAiKey
