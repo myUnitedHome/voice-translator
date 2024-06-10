@@ -1,8 +1,14 @@
-// const SAMPLE_RATE = 48000;
-const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
+// Specifies the sample rate of the audio in Hz. Valid values are 8000, 16000, 32000, 44100, and 48000. default value is 16000
+const SAMPLE_RATE = 48000; // Baja el sample rate si la latencia es más crítica que la calidad
+
 const MAX_LINES = 4;
-////
-const useGROQ = false;
+
+const USE_GROQ = false;
+const USE_STREAM = true;
+const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
+
+const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
+
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
@@ -16,13 +22,16 @@ function deferredPromise() {
   return deferred;
 }
 
-const getTranslation = async (text, openAiKey) => {
+const getTranslation = async (text, openAiKey, stream) => {
   let baseUrl = 'https://api.openai.com/v1';
   let model = 'gpt-4o';
-  if (useGROQ) {
+
+  if (USE_GROQ) {
     baseUrl = 'https://api.groq.com/openai/v1';
     model = 'llama3-8b-8192';
   }
+
+  let prompt = 'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -35,20 +44,48 @@ const getTranslation = async (text, openAiKey) => {
       messages: [
         {
           role: 'system',
-          content:
-            'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything',
+          content: prompt,
         },
         {
           role: 'user',
-          content: `${text}`,
+          content: text,
         },
       ],
       model,
+      stream
     }),
   });
 
-  const result = await response.json();
-  return result.choices[0].message.content.trim();
+  if (response.ok && stream) {
+    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    if (!reader) return;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      let dataDone = false;
+      const arr = value.split('\n');
+      arr.forEach((data) => {
+        if (data.length === 0) return; // ignore empty message
+        if (data.startsWith(':')) return; // ignore sse comment message
+        if (data === 'data: [DONE]') {
+          dataDone = true;
+          finalsContainer.textContent += '\n';
+          return;
+        }
+        const json = JSON.parse(data.substring(6));
+        // console.log(json);
+        // console.log(json.choices[0].delta);
+        // console.log(json.choices[0].delta.content);
+        const translation = json.choices[0].delta.content;
+        if (translation)
+          finalsContainer.textContent += translation;
+      });
+      if (dataDone) break;
+    }
+  } else if (response.ok) {
+    const result = await response.json();
+    return result.choices[0].message.content.trim();
+  }
 };
 
 // function checkAndResetContainer(container) {
@@ -158,8 +195,8 @@ form.addEventListener('submit', async (evt) => {
 
   // Parse submitted data
   const formData = new FormData(form);
-  const gladiaKey = formData.get('gladia_key');
-  const openAiKey = formData.get('openai_key');
+  let gladiaKey = formData.get('gladia_key');
+  let openAiKey = formData.get('openai_key');
 
   const inputDevice = formData.get('input_device');
 
@@ -220,20 +257,13 @@ form.addEventListener('submit', async (evt) => {
     );
     socket.onopen = () => {
       // Check https://docs.gladia.io/reference/live-audio for more information about the parameters
-      // const configuration = {
-      //   x_gladia_key: gladiaKey,
-      //   frames_format: 'bytes',
-      //   language_behaviour: 'automatic single language',
-      //   sample_rate: SAMPLE_RATE,
-      //   translation: true,
-      // };
       const configuration = {
         x_gladia_key: gladiaKey,
         frames_format: 'bytes',
-        language_behaviour: 'automatic single language',
+        language_behaviour: 'manual',
+        language: 'english',
         sample_rate: SAMPLE_RATE,
         translation: true,
-        intermediate_results: true, // Habilitar resultados intermedios para traducción en tiempo real
       };
       socket.send(JSON.stringify(configuration));
     };
@@ -271,30 +301,12 @@ form.addEventListener('submit', async (evt) => {
       audio: inputDevice ? { deviceId: { exact: inputDevice } } : true,
     });
 
-    // Initializes the recorder
-    // recorder = new RecordRTC(audioStream, {
-    //   type: 'audio',
-    //   mimeType: 'audio/wav',
-    //   recorderType: RecordRTC.StereoAudioRecorder,
-    //   timeSlice: 1000,
-    //   async ondataavailable(blob) {
-    //     const buffer = await blob.arrayBuffer();
-    //     // Remove WAV header
-    //     const modifiedBuffer = buffer.slice(44);
-    //     socket?.send(modifiedBuffer);
-    //   },
-    //   sampleRate: SAMPLE_RATE,
-    //   desiredSampRate: SAMPLE_RATE,
-    //   numberOfAudioChannels: 1,
-    // });
-
     recorder = new RecordRTC(audioStream, {
       type: 'audio',
       mimeType: 'audio/wav',
       // mimeType: 'audio/webm;codecs=opus',
       recorderType: RecordRTC.StereoAudioRecorder,
-      timeSlice: 500, // Intervalo más corto para fragmentos de audio
-      // timeSlice: 350,
+      timeSlice: TIME_SLICE, // Intervalo más corto para fragmentos de audio
       async ondataavailable(blob) {
         const buffer = await blob.arrayBuffer();
         const modifiedBuffer = buffer.slice(44);
@@ -377,23 +389,19 @@ form.addEventListener('submit', async (evt) => {
 
   socket.onmessage = async (event) => {
     const data = JSON.parse(event.data);
-    console.log('this is DATA', data);
+    console.log(data);
     if (data?.event === 'transcript' && data.transcription) {
-      if (data.type === 'final') {
-        const translation = await getTranslation(data.transcription, openAiKey);
-        finalsContainer.textContent += translation + '\n';
-        // partialsContainer.textContent = '';
+      if (data.type === 'final' && data.confidence >= FINAL_CONFIDENCE) {
+        const translation = await getTranslation(data.transcription, openAiKey, USE_STREAM);
+        if (translation) {
+          finalsContainer.textContent += translation + '\n';
+        }
+        partialsContainer.textContent = '';
         if (data.transcription.includes(lastPartial)) {
           partialsContainer.textContent = '';
           lastPartial = '';
         }
-        // checkAndResetContainer(finalsContainer); // Verificar y resetear si es necesario
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        // lastPartial = data.transcription;
-        // partialsContainer.textContent = await getTranslation(
-        //   data.transcription,
-        //   openAiKey
-        // );
       }
     }
   };
