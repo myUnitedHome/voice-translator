@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Syne&display=swap');
+
+body {
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Roboto Mono', sans-serif;
+  background-color: black;
+  color: white;
+  margin: 0;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+#form {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s, top 0.3s, left 0.3s;
+  margin-bottom: 4rem;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 80%;
+  max-width: 800px;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.keys-and-device {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 80%;
+}
+
+.form-group {
+  display: contents;
+}
+
+label {
+  align-self: center;
+}
+
+input,
+select {
+  border-radius: 8px; /* Bordes redondeados para inputs y select */
+  padding: 8px;
+  font-size: 1rem;
+  background-color: transparent; /* Fondo transparente */
+  border: 1px solid white; /* Borde blanco para inputs */
+  color: white; /* Color del texto */
+}
+
+button {
+  display: flex;
+  align-items: center; /* Centra el contenido verticalmente */
+  justify-content: center;
+  padding: 5px 10px;
+  font-size: 1rem;
+  border-radius: 12px; /* Bordes más redondeados para botones */
+  background-color: transparent;
+  color: white;
+  border-color: white;
+  margin-top: 0.8rem;
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+
+#result {
+  width: 98vw;
+  min-height: 80vh;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-top: 1px solid #333;
+  padding-top: 1rem;
+  text-align: justify;
+  box-sizing: border-box;
+  margin-top: 13rem;
+}
+
+#partials,
+#partials,
+#finals,
+#result {
+  font-size: 4rem; /* Ajusta el tamaño de fuente según sea necesario */
+  /* white-space: pre-wrap; Mantener los saltos de línea */
+}
+
+#microphone {
+  margin-right: 0.5rem;
+  font-size: 1.4rem;
+}
+
+#stopIcon {
+  margin-right: 0.5rem;
+  font-size: 1.5rem;
+}
+
+button.recordingIndicator {
+  color: red;
+  margin-left: 5px;
+  display: none; /* Inicialmente oculto */
+  animation: pulse 1s infinite alternate; /* Agrega la animación */
+}
+
+.hidden {
+  display: none;
+}
+
+.centered {
+  margin-top: 3rem;
+}
+
+/* .device {
+  margin-top: 25rem;
+} */
+
+@media (max-width: 768px) {
+  .form-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: row;
+    width: 70%;
+    justify-content: space-between;
+  }
+
+  button {
+    /* margin-left: 0; */
+    width: 100%;
+  }
+
+  #result {
+    padding-top: 0.5rem;
+    min-height: 70vh;
+    margin-top: 19rem;
+  }
+
+  #partials,
+  #finals,
+  #result {
+    font-size: 2rem;
+  }
+}
