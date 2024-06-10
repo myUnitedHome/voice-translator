@@ -290,11 +290,11 @@ form.addEventListener('submit', async (evt) => {
 
     recorder = new RecordRTC(audioStream, {
       type: 'audio',
-      // mimeType: 'audio/wav',
-      mimeType: 'audio/webm;codecs=opus',
+      mimeType: 'audio/wav',
+      // mimeType: 'audio/webm;codecs=opus',
       recorderType: RecordRTC.StereoAudioRecorder,
-      // timeSlice: 500, // Intervalo más corto para fragmentos de audio
-      timeSlice: 350,
+      timeSlice: 500, // Intervalo más corto para fragmentos de audio
+      // timeSlice: 350,
       async ondataavailable(blob) {
         const buffer = await blob.arrayBuffer();
         const modifiedBuffer = buffer.slice(44);
