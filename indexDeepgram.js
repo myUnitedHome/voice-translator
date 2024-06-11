@@ -108,7 +108,7 @@ document.getElementById('form').addEventListener('submit', async (event) => {
     };
 
     socket.onclose = () => {
-      document.getElementById('status').textContent = 'Disconnected';
+      console.log('WebSocket connection closed.');
     };
 
     socket.onerror = (error) => {
