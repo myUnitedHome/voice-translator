@@ -335,56 +335,7 @@ form.addEventListener('submit', async (evt) => {
     stop();
   };
 
-  //   socket.onmessage = async (event) => {
-  //     const data = JSON.parse(event.data);
-  //     console.log(data);
-  //     if (data?.event === 'transcript' && data.transcription) {
-  //       if (data.type === 'final') {
-  //         // finalsContainer.textContent += data.transcription;
-  //         // partialsContainer.textContent = '';
-  //         // console.log("esto seria lo final", data.transcription)
-  //         const translation = await getTranslation(data.transcription, openAiKey);
-  //         console.log('esto seria la traduccion', translation);
-  //         finalsContainer.textContent += translation;
-  //         // if data.transcription finish with a . or ? or ! then we add a new line
-  //         if (
-  //           data.transcription.slice(-1) === '.' ||
-  //           data.transcription.slice(-1) === '?' ||
-  //           data.transcription.slice(-1) === '!'
-  //         ) {
-  //           finalsContainer.textContent += '\n';
-  //         } else {
-  //           finalsContainer.textContent += ' ';
-  //         }
-  //         partialsContainer.textContent = '';
-  //         checkAndResetContainer(finalsContainer);
-  //       } else {
-  //         partialsContainer.textContent = data.transcription + '';
-  //         checkAndResetContainer(finalsContainer);
-  //       }
-  //     }
-  //   };
 
-  // socket.onmessage = async (event) => {
-  //   const data = JSON.parse(event.data);
-  //   if (data?.event === 'transcript' && data.transcription) {
-  //     if (data.type === 'final') {
-  //       const translation = await getTranslation(data.transcription, openAiKey);
-  //       finalsContainer.textContent += translation;
-  //       // Agrega un salto de línea si el texto final no termina con un signo de puntuación
-  //       if (
-  //         data.transcription.slice(-1) === '.' ||
-  //         data.transcription.slice(-1) === '?' ||
-  //         data.transcription.slice(-1) === '!'
-  //       ) {
-  //         finalsContainer.textContent += '\n';
-  //       } else {
-  //         finalsContainer.textContent += ' ';
-  //       }
-  //       checkAndResetContainer(finalsContainer);
-  //     }
-  //   }
-  // };
   let lastPartial = '';
 
   socket.onmessage = async (event) => {
