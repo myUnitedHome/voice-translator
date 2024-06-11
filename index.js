@@ -1,14 +1,14 @@
 // Specifies the sample rate of the audio in Hz. Valid values are 8000, 16000, 32000, 44100, and 48000. default value is 16000
-const SAMPLE_RATE = 48000; // Baja el sample rate si la latencia es más crítica que la calidad
+const SAMPLE_RATE = 16000; // Baja el sample rate si la latencia es más crítica que la calidad
 
-const MAX_LINES = 4;
-
+const MAX_LINES = 7;
 const USE_GROQ = false;
 const USE_STREAM = true;
 const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
-
 const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
 
+const ENDPOINTING = 100; //duration of silence which will cause the utterance to be considered finished and a result of type ‘final’ to be sent.
+const AUDIO_ENHANCER = true;
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
