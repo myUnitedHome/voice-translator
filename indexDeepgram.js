@@ -67,7 +67,7 @@ document.getElementById('form').addEventListener('submit', async (event) => {
     console.log('Media stream obtained.');
     // const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
     const socket = new WebSocket(
-      'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true&interim_results=true',
+      'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true',
       ['token', deepgramKey]
     );
 
