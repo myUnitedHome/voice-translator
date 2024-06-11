@@ -31,7 +31,8 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt = 'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt =
+    'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -52,13 +53,14 @@ const getTranslation = async (text, openAiKey, stream) => {
         },
       ],
       model,
-      stream
+      stream,
     }),
   });
 
-
   if (response.ok && stream) {
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
     if (!reader) return;
     while (true) {
       const { value, done } = await reader.read();
@@ -78,8 +80,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta);
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
-        if (translation)
-          finalsContainer.textContent += translation;
+        if (translation) finalsContainer.textContent += translation;
       });
       if (dataDone) break;
     }
@@ -88,22 +89,6 @@ const getTranslation = async (text, openAiKey, stream) => {
     return result.choices[0].message.content.trim();
   }
 };
-
-// function checkAndResetContainer(container) {
-//   const lines = container.textContent.split('\n');
-//   if (lines.length >= MAX_LINES) {
-//     setTimeout(() => {
-//       container.textContent = ''; // Limpiar el contenido del contenedor
-//     }, 10000); // Esperar 3 segundos antes de limpiar la pantalla
-//   }
-// }
-
-function checkAndResetContainer(container) {
-  const lines = container.textContent.split('\n');
-  if (lines.length >= MAX_LINES) {
-    container.textContent = ''; // Limpiar el contenido del contenedor solo cuando se superen las 4 líneas
-  }
-}
 
 // Initialize the audio input devices
 async function listAudioDevices() {
@@ -336,16 +321,19 @@ form.addEventListener('submit', async (evt) => {
     stop();
   };
 
-
   let lastPartial = '';
 
   socket.onmessage = async (event) => {
     document.querySelector('#loading').style.display = 'inline-block';
     const data = JSON.parse(event.data);
-    console.log(data);
+    console.log('DATA', data);
     if (data?.event === 'transcript' && data.transcription) {
-      if (data.type === 'final' && data.confidence >= FINAL_CONFIDENCE) {
-        const translation = await getTranslation(data.transcription, openAiKey, USE_STREAM);
+      if (data.type === 'partial' && data.confidence >= FINAL_CONFIDENCE) {
+        const translation = await getTranslation(
+          data.transcription,
+          openAiKey,
+          USE_STREAM
+        );
         if (translation) {
           finalsContainer.textContent += translation + '\n';
         }
@@ -354,8 +342,8 @@ form.addEventListener('submit', async (evt) => {
           partialsContainer.textContent = '';
           lastPartial = '';
         }
-        document.querySelector('#loading').style.display = 'none';
 
+        document.querySelector('#loading').style.display = 'none';
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
         // lastPartial = data.transcription;
         // partialsContainer.textContent = await getTranslation(
@@ -363,7 +351,6 @@ form.addEventListener('submit', async (evt) => {
         //   openAiKey
         // );
       }
-
     }
   };
 

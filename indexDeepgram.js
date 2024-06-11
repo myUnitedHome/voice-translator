@@ -24,11 +24,6 @@ const keysAndDevice = document.querySelector('.keys-and-device');
 
 // ----
 
-
-
-
-
-
 document.getElementById('form').addEventListener('submit', async (event) => {
   console.log('Form submitted.');
   event.preventDefault();
@@ -37,13 +32,10 @@ document.getElementById('form').addEventListener('submit', async (event) => {
   let deepgramKey = formData.get('deepgram_key');
   let openAiKey = formData.get('openai_key');
 
-
-
   apiGladiaDiv.classList.add('hidden');
   apiOpenAIDiv.classList.add('hidden');
   keysAndDevice.classList.add('centered');
   deviceItem.classList.add('device');
-
 
   let formMovedToTop = false;
 
@@ -54,7 +46,6 @@ document.getElementById('form').addEventListener('submit', async (event) => {
   submitButton.textContent = 'Waiting for connection...';
   resultContainer.style.display = 'none';
   finalsContainer.textContent = '';
-
 
   const stop = () => {
     submitButton.removeAttribute('disabled');
@@ -72,19 +63,22 @@ document.getElementById('form').addEventListener('submit', async (event) => {
     }
   };
 
-
-
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     console.log('Media stream obtained.');
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
+    // const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
+    const socket = new WebSocket(
+      'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true&interim_results=true',
+      ['token', deepgramKey]
+    );
 
     socket.onopen = () => {
       console.log('WebSocket connection established.');
 
       // document.getElementById('status').textContent = 'Connected';
 
-
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: 'audio/webm',
+      });
 
       mediaRecorder.addEventListener('dataavailable', async (event) => {
         if (event.data.size > 0 && socket.readyState == 1) {
@@ -103,7 +97,8 @@ document.getElementById('form').addEventListener('submit', async (event) => {
       if (transcript && received.is_final) {
         const translation = await getTranslation(transcript, openAiKey, true);
         if (translation)
-          document.getElementById('transcript').textContent += translation + ' ';
+          document.getElementById('transcript').textContent +=
+            translation + ' ';
       }
     };
 
@@ -115,13 +110,14 @@ document.getElementById('form').addEventListener('submit', async (event) => {
       console.error('WebSocket error:', error);
     };
 
-    document.querySelector('button[type="button"]').addEventListener('click', () => {
-      mediaRecorder.stop();
-      stream.getTracks().forEach(track => track.stop());
-      socket.close();
-    });
+    document
+      .querySelector('button[type="button"]')
+      .addEventListener('click', () => {
+        mediaRecorder.stop();
+        stream.getTracks().forEach((track) => track.stop());
+        socket.close();
+      });
   });
-
 
   submitButton.textContent = 'Recording...';
 
@@ -145,7 +141,8 @@ const getTranslation = async (text, openAiKey, stream) => {
   let baseUrl = 'https://api.openai.com/v1';
   let model = 'gpt-4o';
 
-  let prompt = 'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt =
+    'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -166,12 +163,14 @@ const getTranslation = async (text, openAiKey, stream) => {
         },
       ],
       model,
-      stream
+      stream,
     }),
   });
 
   if (response.ok && stream) {
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
     if (!reader) return;
     while (true) {
       const { value, done } = await reader.read();
@@ -191,8 +190,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta);
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
-        if (translation)
-          finalsContainer.textContent += translation;
+        if (translation) finalsContainer.textContent += translation;
       });
       if (dataDone) break;
     }
