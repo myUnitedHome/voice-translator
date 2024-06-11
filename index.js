@@ -56,6 +56,7 @@ const getTranslation = async (text, openAiKey, stream) => {
     }),
   });
 
+
   if (response.ok && stream) {
     const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
     if (!reader) return;
@@ -339,6 +340,7 @@ form.addEventListener('submit', async (evt) => {
   let lastPartial = '';
 
   socket.onmessage = async (event) => {
+    document.querySelector('#loading').style.display = 'inline-block';
     const data = JSON.parse(event.data);
     console.log(data);
     if (data?.event === 'transcript' && data.transcription) {
@@ -352,6 +354,8 @@ form.addEventListener('submit', async (evt) => {
           partialsContainer.textContent = '';
           lastPartial = '';
         }
+        document.querySelector('#loading').style.display = 'none';
+
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
         // lastPartial = data.transcription;
         // partialsContainer.textContent = await getTranslation(
@@ -359,6 +363,7 @@ form.addEventListener('submit', async (evt) => {
         //   openAiKey
         // );
       }
+
     }
   };
 
