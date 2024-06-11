@@ -1,4 +1,33 @@
-var transcriptP = document.getElementById('transcript');
+/** @type {HTMLFormElement} */
+const form = document.querySelector('#form');
+/** @type {HTMLButtonElement} */
+const submitButton = document.querySelector('button[type="submit"]');
+/** @type {HTMLButtonElement} */
+const stopButton = document.querySelector('button[type="button"]');
+
+const recordingIndicator = document.querySelector('#recordingIndicator');
+/** @type {HTMLButtonElement} */
+const clearButton = document.querySelector('#clearButton');
+/** @type {HTMLDivElement} */
+const resultContainer = document.querySelector('#result');
+/** @type {HTMLSpanElement} */
+const finalsContainer = document.querySelector('#finals');
+/** @type {HTMLSpanElement} */
+const partialsContainer = document.querySelector('#partials');
+/** @type {HTMLInputGroupElement} */
+const apiGladiaDiv = document.querySelector('#apiglad');
+const apiOpenAIDiv = document.querySelector('#openapi');
+/** @type {HTMLSelectGroupElement} */
+const deviceItem = document.querySelector('#deviceitem');
+
+const keysAndDevice = document.querySelector('.keys-and-device');
+
+// ----
+
+
+
+
+
 
 document.getElementById('form').addEventListener('submit', async (event) => {
   console.log('Form submitted.');
@@ -8,13 +37,53 @@ document.getElementById('form').addEventListener('submit', async (event) => {
   let deepgramKey = formData.get('deepgram_key');
   let openAiKey = formData.get('openai_key');
 
+
+
+  apiGladiaDiv.classList.add('hidden');
+  apiOpenAIDiv.classList.add('hidden');
+  keysAndDevice.classList.add('centered');
+  deviceItem.classList.add('device');
+
+
+  let formMovedToTop = false;
+
+  const initialSubmitButtonContent = submitButton.innerHTML;
+
+  // Update the UI
+  submitButton.setAttribute('disabled', 'true');
+  submitButton.textContent = 'Waiting for connection...';
+  resultContainer.style.display = 'none';
+  finalsContainer.textContent = '';
+
+
+  const stop = () => {
+    submitButton.removeAttribute('disabled');
+    submitButton.style.display = 'block';
+
+    submitButton.innerHTML = initialSubmitButtonContent;
+
+    stopButton.setAttribute('disabled', 'true');
+    stopButton.style.backgroundColor = '';
+    stopButton.style.color = '';
+    stopButton.removeEventListener('click', stop);
+
+    if (socket) {
+      socket.close();
+    }
+  };
+
+
+
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     console.log('Media stream obtained.');
     const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
 
     socket.onopen = () => {
       console.log('WebSocket connection established.');
-      document.getElementById('status').textContent = 'Connected';
+
+      // document.getElementById('status').textContent = 'Connected';
+
+
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
       mediaRecorder.addEventListener('dataavailable', async (event) => {
@@ -29,6 +98,7 @@ document.getElementById('form').addEventListener('submit', async (event) => {
     socket.onmessage = async (message) => {
       const received = JSON.parse(message.data);
       const transcript = received.channel.alternatives[0].transcript;
+      console.log('Transcript:', transcript);
 
       if (transcript && received.is_final) {
         const translation = await getTranslation(transcript, openAiKey, true);
@@ -51,6 +121,24 @@ document.getElementById('form').addEventListener('submit', async (event) => {
       socket.close();
     });
   });
+
+
+  submitButton.textContent = 'Recording...';
+
+  stopButton.removeAttribute('disabled');
+  stopButton.style.backgroundColor = '#d94242';
+  stopButton.style.color = '#fff';
+  stopButton.addEventListener('click', stop);
+
+  resultContainer.style.display = 'block';
+
+  if (!formMovedToTop) {
+    form.style.position = 'absolute';
+    form.style.top = '10px';
+    form.style.left = '10px';
+    form.style.transform = 'translateY(0)';
+    formMovedToTop = true;
+  }
 });
 
 const getTranslation = async (text, openAiKey, stream) => {
@@ -95,7 +183,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         if (data.startsWith(':')) return; // ignore sse comment message
         if (data === 'data: [DONE]') {
           dataDone = true;
-          transcriptP.textContent += '\n';
+          finalsContainer.textContent += '\n';
           return;
         }
         const json = JSON.parse(data.substring(6));
@@ -104,7 +192,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
         if (translation)
-          transcriptP.textContent += translation;
+          finalsContainer.textContent += translation;
       });
       if (dataDone) break;
     }
