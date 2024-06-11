@@ -39,6 +39,10 @@ document.getElementById('form').addEventListener('submit', async (event) => {
 
 
 
+
+
+
+
   apiGladiaDiv.classList.add('hidden');
   apiOpenAIDiv.classList.add('hidden');
   keysAndDevice.classList.add('centered');
@@ -76,7 +80,7 @@ document.getElementById('form').addEventListener('submit', async (event) => {
 
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     console.log('Media stream obtained.');
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
+    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?endpointing=true', ['token', deepgramKey]);
 
     socket.onopen = () => {
       console.log('WebSocket connection established.');
@@ -99,6 +103,8 @@ document.getElementById('form').addEventListener('submit', async (event) => {
       const received = JSON.parse(message.data);
       const transcript = received.channel.alternatives[0].transcript;
       console.log('Transcript:', transcript);
+      console.log('Final:', received.is_final);
+      console.log('Received:', received);
 
       if (transcript && received.is_final) {
         const translation = await getTranslation(transcript, openAiKey, true);
