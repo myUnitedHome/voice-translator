@@ -9,7 +9,6 @@ const TIME_SLICE = 200; // Intervalo más corto para fragmentos de audio
 
 const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
 
-
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
  */
@@ -31,7 +30,8 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt = 'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
+  let prompt =
+    'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -52,12 +52,14 @@ const getTranslation = async (text, openAiKey, stream) => {
         },
       ],
       model,
-      stream
+      stream,
     }),
   });
 
   if (response.ok && stream) {
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
     if (!reader) return;
     while (true) {
       const { value, done } = await reader.read();
@@ -77,8 +79,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta);
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
-        if (translation)
-          finalsContainer.textContent += translation;
+        if (translation) finalsContainer.textContent += translation;
       });
       if (dataDone) break;
     }
@@ -87,7 +88,6 @@ const getTranslation = async (text, openAiKey, stream) => {
     return result.choices[0].message.content.trim();
   }
 };
-
 
 function checkAndResetContainer(container) {
   const lines = container.textContent.split('\n');
@@ -190,10 +190,6 @@ form.addEventListener('submit', async (evt) => {
   let deepgramKey = formData.get('deepgram_key');
   let openAiKey = formData.get('openai_key');
 
-
-
-
-
   const inputDevice = formData.get('input_device');
 
   let formMovedToTop = false;
@@ -248,14 +244,10 @@ form.addEventListener('submit', async (evt) => {
     const socketPromise = deferredPromise();
 
     // Initializes the websocket
-    socket = new WebSocket(
-      `wss://api.deepgram.com/v1/listen`,
-      [
-        'token',
-        deepgramKey,
-      ]
-
-    );
+    socket = new WebSocket(`wss://api.deepgram.com/v1/listen`, [
+      'token',
+      deepgramKey,
+    ]);
     socket.onopen = () => {
       socketPromise.resolve(true);
     };
@@ -312,20 +304,24 @@ form.addEventListener('submit', async (evt) => {
   socket.onmessage = async (event) => {
     //const data = JSON.parse(event.data);
     //console.log(data);
-    const received = JSON.parse(message.data)
-    const transcript = received.channel.alternatives[0].transcript
+    const received = JSON.parse(event.data);
+    console.log('IS RECEIVED', received);
+    const transcript = received.channel.alternatives[0].transcript;
 
-    if (transcript && received.is_fina) {
-        const translation = await getTranslation(transcript, openAiKey, USE_STREAM);
-        if (translation) {
-          finalsContainer.textContent += translation + '\n';
-        }
+    if (transcript && received.is_final) {
+      const translation = await getTranslation(
+        transcript,
+        openAiKey,
+        USE_STREAM
+      );
+      if (translation) {
+        finalsContainer.textContent += translation + '\n';
+      }
+      partialsContainer.textContent = '';
+      if (data.channel.alternatives[0].transcript.includes(lastPartial)) {
         partialsContainer.textContent = '';
-        if (data.channel.alternatives[0].transcript.includes(lastPartial)) {
-          partialsContainer.textContent = '';
-          lastPartial = '';
-        }
-
+        lastPartial = '';
+      }
     } else {
       if (data.channel.alternatives[0].confidence >= FINAL_CONFIDENCE) {
         lastPartial = data.channel.alternatives[0].transcript;

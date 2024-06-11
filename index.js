@@ -6,6 +6,7 @@ const USE_GROQ = false;
 const USE_STREAM = true;
 const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
 const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
+const MAX_AUDIO = 30; //: When audio duration since last final is longer than maximum_audio_duration, a final will be triggered with stable utterances.
 
 const ENDPOINTING = 100; //duration of silence which will cause the utterance to be considered finished and a result of type ‘final’ to be sent.
 const AUDIO_ENHANCER = true;
@@ -31,7 +32,8 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt = 'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt =
+    'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -52,12 +54,14 @@ const getTranslation = async (text, openAiKey, stream) => {
         },
       ],
       model,
-      stream
+      stream,
     }),
   });
 
   if (response.ok && stream) {
-    const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
+    const reader = response.body
+      ?.pipeThrough(new TextDecoderStream())
+      .getReader();
     if (!reader) return;
     while (true) {
       const { value, done } = await reader.read();
@@ -77,8 +81,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta);
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
-        if (translation)
-          finalsContainer.textContent += translation;
+        if (translation) finalsContainer.textContent += translation;
       });
       if (dataDone) break;
     }
@@ -264,6 +267,7 @@ form.addEventListener('submit', async (evt) => {
         language: 'english',
         sample_rate: SAMPLE_RATE,
         translation: true,
+        maximum_audio_duration: MAX_AUDIO,
       };
       socket.send(JSON.stringify(configuration));
     };
@@ -315,6 +319,7 @@ form.addEventListener('submit', async (evt) => {
       sampleRate: SAMPLE_RATE,
       desiredSampRate: SAMPLE_RATE,
       numberOfAudioChannels: 1,
+      frameInterval: 50,
     });
 
     await socketPromise.promise;
@@ -392,7 +397,11 @@ form.addEventListener('submit', async (evt) => {
     console.log(data);
     if (data?.event === 'transcript' && data.transcription) {
       if (data.type === 'final' && data.confidence >= FINAL_CONFIDENCE) {
-        const translation = await getTranslation(data.transcription, openAiKey, USE_STREAM);
+        const translation = await getTranslation(
+          data.transcription,
+          openAiKey,
+          USE_STREAM
+        );
         if (translation) {
           finalsContainer.textContent += translation + '\n';
         }
