@@ -159,8 +159,7 @@ const getTranslation = async (text, openAiKey, stream) => {
   let baseUrl = 'https://api.openai.com/v1';
   let model = 'gpt-4o';
 
-  let prompt =
-    'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt = 'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything). When translating to spanish make sure that the sentences make sense and are correct, you are translating from a live transcription so you may need to adjust the translation to make it correct.';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {

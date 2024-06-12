@@ -395,11 +395,11 @@ form.addEventListener('submit', async (evt) => {
         document.querySelector('#loading').style.display = 'none';
         checkTextContainerHeight();
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        // lastPartial = data.transcription;
-        // partialsContainer.textContent = await getTranslation(
-        //   data.transcription,
-        //   openAiKey
-        // );
+        lastPartial = data.transcription;
+        partialsContainer.textContent = await getTranslation(
+          data.transcription,
+          openAiKey
+        );
       }
     }
   };
