@@ -388,25 +388,6 @@ form.addEventListener('submit', async (evt) => {
         }
 
         document.querySelector('#loading').style.display = 'none';
-
-        // const translation = await getTranslation(
-        //   data.transcription,
-        //   openAiKey,
-        //   USE_STREAM
-        // );
-        // if (translation) {
-        //   //empty finalsContiner if we have a lot of lines
-        //   checkAndResetContainer(finalsContainer);
-
-        //   finalsContainer.textContent += translation + '\n';
-        // }
-        // partialsContainer.textContent = '';
-        // if (data.transcription.includes(lastPartial)) {
-        //   partialsContainer.textContent = '';
-        //   lastPartial = '';
-        // }
-
-        // document.querySelector('#loading').style.display = 'none';
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
         // lastPartial = data.transcription;
         // partialsContainer.textContent = await getTranslation(
