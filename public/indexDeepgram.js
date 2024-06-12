@@ -19,7 +19,17 @@ const apiGladiaDiv = document.querySelector('#apiglad');
 const apiOpenAIDiv = document.querySelector('#openapi');
 // const deviceItem = document.querySelector('#deviceitem');
 
+
+
 const keysAndDevice = document.querySelector('.keys-and-device');
+
+let selectedLanguage = 'Spanish'; // Valor por defecto
+
+function handleLanguageChange() {
+  const languageSelect = document.getElementById('language');
+  selectedLanguage = languageSelect.value;
+  console.log(`Language selected: ${selectedLanguage}`);
+}
 
 // ----
 
@@ -43,6 +53,8 @@ function checkTextContainerHeight() {
     }, 5000); // Esperar 5 segundos antes de limpiar la pantalla
   }
 }
+
+const MAX_LINES = 4;
 
 
 document.getElementById('form').addEventListener('submit', async (event) => {
@@ -122,10 +134,15 @@ document.getElementById('form').addEventListener('submit', async (event) => {
       console.log('Received:', received);
 
       if (transcript && received.is_final) {
+
+        if(selectedLanguage === 'Spanish'){
         const translation = await getTranslation(transcript, openAiKey, true);
-        if (translation)
-          document.getElementById('transcript').textContent +=
-            translation + ' ';
+      }else{
+        checkTextContainerHeight();
+        finalsContainer.textContent += transcript + '\n';
+        resultContainer.scrollTop = resultContainer.scrollHeight;
+      }
+
       }
     };
 
@@ -211,6 +228,7 @@ const getTranslation = async (text, openAiKey, stream) => {
         if (data === 'data: [DONE]') {
           dataDone = true;
           finalsContainer.textContent += '\n';
+
           return;
         }
         const json = JSON.parse(data.substring(6));
@@ -218,7 +236,13 @@ const getTranslation = async (text, openAiKey, stream) => {
         // console.log(json.choices[0].delta);
         // console.log(json.choices[0].delta.content);
         const translation = json.choices[0].delta.content;
-        if (translation) finalsContainer.textContent += translation;
+        if (translation){
+          finalsContainer.textContent += translation;
+          resultContainer.scrollTop = resultContainer.scrollHeight;
+          checkTextContainerHeight();
+
+        }
+
       });
       if (dataDone) break;
     }

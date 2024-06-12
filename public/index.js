@@ -380,7 +380,7 @@ form.addEventListener('submit', async (evt) => {
           );
           if (translation) {
             finalsContainer.textContent += translation + '\n';
-            resultDiv.scrollTop = resultDiv.scrollHeight;
+            resultContainer.scrollTop = resultContainer.scrollHeight;
           }
           partialsContainer.textContent = '';
           if (data.transcription.includes(lastPartial)) {
@@ -391,7 +391,7 @@ form.addEventListener('submit', async (evt) => {
           // For English, just transcribe without translation
           finalsContainer.textContent += data.transcription + '\n';
           partialsContainer.textContent = '';
-          resultDiv.scrollTop = resultDiv.scrollHeight;
+          resultContainer.scrollTop = resultContainer.scrollHeight;
         }
 
         document.querySelector('#loading').style.display = 'none';
