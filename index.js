@@ -269,14 +269,23 @@ form.addEventListener('submit', async (evt) => {
     );
     socket.onopen = () => {
       // Check https://docs.gladia.io/reference/live-audio for more information about the parameters
+      // const configuration = {
+      //   x_gladia_key: gladiaKey,
+      //   frames_format: 'bytes',
+      //   language_behaviour: 'manual',
+      //   language: 'english',
+      //   sample_rate: SAMPLE_RATE,
+      //   translation: true,
+      // };
       const configuration = {
         x_gladia_key: gladiaKey,
         frames_format: 'bytes',
         language_behaviour: 'manual',
         language: 'english',
         sample_rate: SAMPLE_RATE,
-        translation: true,
+        translation: selectedLanguage === 'Spanish' ? true : false,
       };
+      console.log('configuration', configuration);
       socket.send(JSON.stringify(configuration));
     };
     socket.onerror = () => {
@@ -354,31 +363,56 @@ form.addEventListener('submit', async (evt) => {
     const data = JSON.parse(event.data);
     console.log('DATA', data);
     if (data?.event === 'transcript' && data.transcription) {
-      if (data.type === 'partial' && data.confidence >= FINAL_CONFIDENCE) {
-        const translation = await getTranslation(
-          data.transcription,
-          openAiKey,
-          USE_STREAM
-        );
-        if (translation) {
-          //empty finalsContiner if we have a lot of lines
-          checkAndResetContainer(finalsContainer);
+      if (data.type === 'final' && data.confidence >= FINAL_CONFIDENCE) {
+        if (selectedLanguage === 'Spanish') {
+          const translation = await getTranslation(
+            data.transcription,
+            openAiKey,
+            USE_STREAM
+          );
+          if (translation) {
+            //empty finalsContiner if we have a lot of lines
+            checkAndResetContainer(finalsContainer);
 
-          finalsContainer.textContent += translation + '\n';
-        }
-        partialsContainer.textContent = '';
-        if (data.transcription.includes(lastPartial)) {
+            finalsContainer.textContent += translation + '\n';
+          }
           partialsContainer.textContent = '';
-          lastPartial = '';
+          if (data.transcription.includes(lastPartial)) {
+            partialsContainer.textContent = '';
+            lastPartial = '';
+          }
+        } else {
+          // For English, just transcribe without translation
+          finalsContainer.textContent += data.transcription + '\n';
+          partialsContainer.textContent = '';
         }
 
         document.querySelector('#loading').style.display = 'none';
+
+        // const translation = await getTranslation(
+        //   data.transcription,
+        //   openAiKey,
+        //   USE_STREAM
+        // );
+        // if (translation) {
+        //   //empty finalsContiner if we have a lot of lines
+        //   checkAndResetContainer(finalsContainer);
+
+        //   finalsContainer.textContent += translation + '\n';
+        // }
+        // partialsContainer.textContent = '';
+        // if (data.transcription.includes(lastPartial)) {
+        //   partialsContainer.textContent = '';
+        //   lastPartial = '';
+        // }
+
+        // document.querySelector('#loading').style.display = 'none';
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        lastPartial = data.transcription;
-        partialsContainer.textContent = await getTranslation(
-          data.transcription,
-          openAiKey
-        );
+        // lastPartial = data.transcription;
+        // partialsContainer.textContent = await getTranslation(
+        //   data.transcription,
+        //   openAiKey
+        // );
       }
     }
   };
