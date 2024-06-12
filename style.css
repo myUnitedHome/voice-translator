@@ -81,10 +81,10 @@ button {
 #result {
   width: 98vw;
   min-height: 80vh;
-  max-height: 90vh;
+  max-height: 80vh;
   overflow-y: auto;
   border-top: 1px solid #333;
-  padding-top: 1rem;
+  padding-top: 6rem;
   text-align: justify;
   box-sizing: border-box;
   margin-top: 20rem;
@@ -93,7 +93,7 @@ button {
 #partials,
 #finals,
 #result {
-  font-size: 3.5rem; /* Ajusta el tamaño de fuente según sea necesario */
+  font-size: 3rem; /* Ajusta el tamaño de fuente según sea necesario */
   /* white-space: pre-wrap; Mantener los saltos de línea */
 }
 

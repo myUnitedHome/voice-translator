@@ -1,7 +1,7 @@
 // Specifies the sample rate of the audio in Hz. Valid values are 8000, 16000, 32000, 44100, and 48000. default value is 16000
 const SAMPLE_RATE = 48000; // Baja el sample rate si la latencia es más crítica que la calidad
 
-const MAX_LINES = 5;
+const MAX_LINES = 4;
 const USE_GROQ = false;
 const USE_STREAM = true;
 const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
