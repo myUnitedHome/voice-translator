@@ -290,8 +290,8 @@ form.addEventListener('submit', async (evt) => {
         frames_format: 'bytes',
         language_behaviour: 'manual',
         language: 'english',
+        endpointing: ENDPOINTING,
         sample_rate: SAMPLE_RATE,
-        translation: selectedLanguage === 'Spanish' ? true : false,
       };
       console.log('configuration', configuration);
       socket.send(JSON.stringify(configuration));
@@ -380,6 +380,7 @@ form.addEventListener('submit', async (evt) => {
           );
           if (translation) {
             finalsContainer.textContent += translation + '\n';
+            resultDiv.scrollTop = resultDiv.scrollHeight;
           }
           partialsContainer.textContent = '';
           if (data.transcription.includes(lastPartial)) {
@@ -390,16 +391,19 @@ form.addEventListener('submit', async (evt) => {
           // For English, just transcribe without translation
           finalsContainer.textContent += data.transcription + '\n';
           partialsContainer.textContent = '';
+          resultDiv.scrollTop = resultDiv.scrollHeight;
         }
 
         document.querySelector('#loading').style.display = 'none';
         checkTextContainerHeight();
-      } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        lastPartial = data.transcription;
-        partialsContainer.textContent = await getTranslation(
-          data.transcription,
-          openAiKey
-        );
+      } else if (data.type === 'partial' && data.confidence >= 0.72) {
+        if (selectedLanguage === 'Spanish') {
+          lastPartial = data.transcription;
+          partialsContainer.textContent = await getTranslation(
+            data.transcription,
+            openAiKey
+          );
+       }
       }
     }
   };
@@ -417,34 +421,14 @@ form.addEventListener('submit', async (evt) => {
   recorder.startRecording();
 
   if (!formMovedToTop) {
-    form.style.position = 'absolute';
-    form.style.top = '10px';
-    form.style.left = '10px';
-    form.style.transform = 'translateY(0)';
+    // form.style.position = 'absolute';
+    // form.style.top = '10px';
+    // form.style.left = '10px';
+    // form.style.transform = 'translateY(0)';
+    resultContainer.style.marginTop = '10rem';
+    form.style.display = 'none';
     formMovedToTop = true;
   }
 });
 
 
-document.getElementById('fullScreenButton').addEventListener('click', () => {
-  const resultDiv = document.getElementById('result');
-
-  //hide form
-  form.style.display = 'none';
-
-
-  if (resultDiv.classList.contains('full-screen')) {
-    resultDiv.classList.remove('full-screen');
-    document.getElementById('closeButton').remove();
-  } else {
-    resultDiv.classList.add('full-screen');
-    const closeButton = document.createElement('button');
-    closeButton.id = 'closeButton';
-    closeButton.textContent = 'X';
-    closeButton.addEventListener('click', () => {
-      resultDiv.classList.remove('full-screen');
-      closeButton.remove();
-    });
-    resultDiv.appendChild(closeButton);
-  }
-});
