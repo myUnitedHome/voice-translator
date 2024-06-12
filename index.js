@@ -33,8 +33,7 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt =
-    'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt = 'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -199,18 +198,33 @@ const deviceItem = document.querySelector('#deviceitem');
 
 const keysAndDevice = document.querySelector('.keys-and-device');
 
+// the keys are base64 encoded in the url openAiKey:gladiaKey
+const urlParams = new URLSearchParams(window.location.search);
+const keys = urlParams.get('key');
+if(keys) {
+
+  const keysDecoded = atob(keys).split(':');
+  var openAiKey = keysDecoded[0];
+  var gladiaKey = keysDecoded[1];
+
+}else{
+  window.alert('No keys provided');
+}
+
+
+
 form.addEventListener('submit', async (evt) => {
   evt.preventDefault();
 
-  apiGladiaDiv.classList.add('hidden');
-  apiOpenAIDiv.classList.add('hidden');
+  //apiGladiaDiv.classList.add('hidden');
+  //apiOpenAIDiv.classList.add('hidden');
   keysAndDevice.classList.add('centered');
   deviceItem.classList.add('device');
 
   // Parse submitted data
   const formData = new FormData(form);
-  let gladiaKey = formData.get('gladia_key');
-  let openAiKey = formData.get('openai_key');
+  // let gladiaKey = formData.get('gladia_key');
+  // let openAiKey = formData.get('openai_key');
 
   const inputDevice = formData.get('input_device');
 

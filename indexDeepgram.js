@@ -17,25 +17,37 @@ const partialsContainer = document.querySelector('#partials');
 /** @type {HTMLInputGroupElement} */
 const apiGladiaDiv = document.querySelector('#apiglad');
 const apiOpenAIDiv = document.querySelector('#openapi');
-/** @type {HTMLSelectGroupElement} */
-const deviceItem = document.querySelector('#deviceitem');
+// const deviceItem = document.querySelector('#deviceitem');
 
 const keysAndDevice = document.querySelector('.keys-and-device');
 
 // ----
+
+const urlParams = new URLSearchParams(window.location.search);
+const keys = urlParams.get('key');
+if(keys) {
+
+  const keysDecoded = atob(keys).split(':');
+  var openAiKey = keysDecoded[0];
+  var deepgramKey = keysDecoded[1];
+
+}else{
+  window.alert('No keys provided');
+}
+
 
 document.getElementById('form').addEventListener('submit', async (event) => {
   console.log('Form submitted.');
   event.preventDefault();
 
   const formData = new FormData(event.target);
-  let deepgramKey = formData.get('deepgram_key');
-  let openAiKey = formData.get('openai_key');
+  // let deepgramKey = formData.get('deepgram_key');
+  // let openAiKey = formData.get('openai_key');
 
-  apiGladiaDiv.classList.add('hidden');
-  apiOpenAIDiv.classList.add('hidden');
+  // apiGladiaDiv.classList.add('hidden');
+  // apiOpenAIDiv.classList.add('hidden');
   keysAndDevice.classList.add('centered');
-  deviceItem.classList.add('device');
+  // deviceItem.classList.add('device');
 
   let formMovedToTop = false;
 
@@ -71,7 +83,7 @@ document.getElementById('form').addEventListener('submit', async (event) => {
     //   ['token', deepgramKey]
     // );
     const socket = new WebSocket(
-      'wss://api.deepgram.com/v1/listen?endpointing=true',
+      'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true',
       ['token', deepgramKey]
     );
 
