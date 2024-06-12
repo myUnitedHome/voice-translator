@@ -35,6 +35,15 @@ if(keys) {
   window.alert('No keys provided');
 }
 
+function checkTextContainerHeight() {
+  const lines = finalsContainer.textContent.split('\n');
+  if (lines.length >= MAX_LINES) {
+    setTimeout(() => {
+      finalsContainer.textContent = ''; // Limpiar el contenido del contenedor
+    }, 5000); // Esperar 5 segundos antes de limpiar la pantalla
+  }
+}
+
 
 document.getElementById('form').addEventListener('submit', async (event) => {
   console.log('Form submitted.');
@@ -147,11 +156,13 @@ document.getElementById('form').addEventListener('submit', async (event) => {
   resultContainer.style.display = 'block';
 
   if (!formMovedToTop) {
-    form.style.position = 'absolute';
-    form.style.top = '10px';
-    form.style.left = '10px';
-    form.style.transform = 'translateY(0)';
+    resultContainer.style.marginTop = '10rem';
+    form.style.display = 'none';
     formMovedToTop = true;
+    // form.style.position = 'absolute';
+    // form.style.top = '10px';
+    // form.style.left = '10px';
+    // form.style.transform = 'translateY(0)';
   }
 });
 
