@@ -424,3 +424,27 @@ form.addEventListener('submit', async (evt) => {
     formMovedToTop = true;
   }
 });
+
+
+document.getElementById('fullScreenButton').addEventListener('click', () => {
+  const resultDiv = document.getElementById('result');
+
+  //hide form
+  form.style.display = 'none';
+
+
+  if (resultDiv.classList.contains('full-screen')) {
+    resultDiv.classList.remove('full-screen');
+    document.getElementById('closeButton').remove();
+  } else {
+    resultDiv.classList.add('full-screen');
+    const closeButton = document.createElement('button');
+    closeButton.id = 'closeButton';
+    closeButton.textContent = 'X';
+    closeButton.addEventListener('click', () => {
+      resultDiv.classList.remove('full-screen');
+      closeButton.remove();
+    });
+    resultDiv.appendChild(closeButton);
+  }
+});
