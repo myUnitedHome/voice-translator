@@ -20,9 +20,9 @@ body {
 
 #companyLogo {
   position: fixed;
-  top: 2rem;
+  top: -2rem;
   right: 4rem;
-  height: 50px; /* Ajusta el tamaño del logo según sea necesario */
+  height: 200px; /* Ajusta el tamaño del logo según sea necesario */
 }
 
 #form {
