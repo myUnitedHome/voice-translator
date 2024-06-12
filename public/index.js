@@ -33,7 +33,8 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt = 'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
+  let prompt =
+    'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -201,17 +202,13 @@ const keysAndDevice = document.querySelector('.keys-and-device');
 // the keys are base64 encoded in the url openAiKey:gladiaKey
 const urlParams = new URLSearchParams(window.location.search);
 const keys = urlParams.get('key');
-if(keys) {
-
+if (keys) {
   const keysDecoded = atob(keys).split(':');
   var openAiKey = keysDecoded[0];
   var gladiaKey = keysDecoded[1];
-
-}else{
+} else {
   window.alert('No keys provided');
 }
-
-
 
 form.addEventListener('submit', async (evt) => {
   evt.preventDefault();
@@ -288,8 +285,8 @@ form.addEventListener('submit', async (evt) => {
       const configuration = {
         x_gladia_key: gladiaKey,
         frames_format: 'bytes',
-        language_behaviour: 'manual',
-        language: 'english',
+        language_behaviour: 'automatic multiple languages',
+        // language: 'english',
         endpointing: ENDPOINTING,
         sample_rate: SAMPLE_RATE,
       };
@@ -403,7 +400,7 @@ form.addEventListener('submit', async (evt) => {
             data.transcription,
             openAiKey
           );
-       }
+        }
       }
     }
   };
@@ -430,5 +427,3 @@ form.addEventListener('submit', async (evt) => {
     formMovedToTop = true;
   }
 });
-
-
