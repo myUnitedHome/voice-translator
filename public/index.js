@@ -34,7 +34,7 @@ const getTranslation = async (text, openAiKey, stream) => {
   }
 
   let prompt =
-    'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
+    'You are an English to Spanish translator and viceversa. If the text is in english Reply ONLY with the Spanish translation of the text. If the text is in Spanish reply ONLY with the English translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -117,6 +117,17 @@ function checkTextContainerHeight() {
     }, 5000); // Esperar 5 segundos antes de limpiar la pantalla
   }
 }
+
+function restartRecording() {
+  if (recorder) {
+    recorder.stopRecording(() => {
+      recorder.startRecording();
+    });
+  }
+}
+
+// Configurar un temporizador para reiniciar la grabación cada 10 minutos (600000 ms)
+setInterval(restartRecording, 600000); // 600000 ms = 10 minutos
 
 // Initialize the audio input devices
 async function listAudioDevices() {
