@@ -93,7 +93,7 @@ button {
 #partials,
 #finals,
 #result {
-  font-size: 2rem; /* Ajusta el tamaño de fuente según sea necesario */
+  font-size: 3.5rem; /* Ajusta el tamaño de fuente según sea necesario */
   /* white-space: pre-wrap; Mantener los saltos de línea */
 }
 
@@ -157,11 +157,9 @@ button.recordingIndicator {
   }
 }
 
-#finals{
+#finals {
   margin-top: 5%;
 }
-
-
 
 .dots-container {
   font-size: 2rem;
@@ -188,10 +186,11 @@ button.recordingIndicator {
 }
 
 @keyframes blink {
-  0%, 100% {
-      opacity: 0;
+  0%,
+  100% {
+    opacity: 0;
   }
   50% {
-      opacity: 1;
+    opacity: 1;
   }
 }
