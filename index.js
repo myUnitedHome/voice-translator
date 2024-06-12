@@ -1,7 +1,7 @@
 // Specifies the sample rate of the audio in Hz. Valid values are 8000, 16000, 32000, 44100, and 48000. default value is 16000
 const SAMPLE_RATE = 48000; // Baja el sample rate si la latencia es más crítica que la calidad
 
-const MAX_LINES = 7;
+const MAX_LINES = 5;
 const USE_GROQ = false;
 const USE_STREAM = true;
 const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
@@ -92,27 +92,29 @@ const getTranslation = async (text, openAiKey, stream) => {
   }
 };
 
-// function checkAndResetContainer(container) {
-//   const lines = container.textContent.split('\n');
-//   if (lines.length >= MAX_LINES) {
-//     setTimeout(() => {
-//       container.textContent = ''; // Limpiar el contenido del contenedor
-//     }, 10000); // Esperar 3 segundos antes de limpiar la pantalla
-//   }
-// }
-
 function handleLanguageChange() {
   const languageSelect = document.getElementById('language');
   selectedLanguage = languageSelect.value;
   console.log(`Language selected: ${selectedLanguage}`);
 }
 
-function checkAndResetContainer(container) {
-  console.log('Checking container');
-  const lines = container.textContent.split('\n');
-  console.log(lines.length);
+// function checkTextContainerHeight() {
+//   const containerHeight = finalsContainer.clientHeight;
+//   const containerTotalHeight = finalsContainer.scrollHeight;
+//   const percentageFilled = (containerHeight / containerTotalHeight) * 100;
+
+//   if (percentageFilled >= 20) {
+//     setTimeout(() => {
+//       finalsContainer.textContent = ''; // Limpiar el contenido del contenedor
+//     }, 5000); // Esperar 5 segundos antes de limpiar la pantalla
+//   }
+// }
+function checkTextContainerHeight() {
+  const lines = finalsContainer.textContent.split('\n');
   if (lines.length >= MAX_LINES) {
-    container.textContent = ''; // Limpiar el contenido del contenedor solo cuando se superen las 4 líneas
+    setTimeout(() => {
+      finalsContainer.textContent = ''; // Limpiar el contenido del contenedor
+    }, 5000); // Esperar 5 segundos antes de limpiar la pantalla
   }
 }
 
@@ -269,14 +271,6 @@ form.addEventListener('submit', async (evt) => {
     );
     socket.onopen = () => {
       // Check https://docs.gladia.io/reference/live-audio for more information about the parameters
-      // const configuration = {
-      //   x_gladia_key: gladiaKey,
-      //   frames_format: 'bytes',
-      //   language_behaviour: 'manual',
-      //   language: 'english',
-      //   sample_rate: SAMPLE_RATE,
-      //   translation: true,
-      // };
       const configuration = {
         x_gladia_key: gladiaKey,
         frames_format: 'bytes',
@@ -371,9 +365,6 @@ form.addEventListener('submit', async (evt) => {
             USE_STREAM
           );
           if (translation) {
-            //empty finalsContiner if we have a lot of lines
-            checkAndResetContainer(finalsContainer);
-
             finalsContainer.textContent += translation + '\n';
           }
           partialsContainer.textContent = '';
@@ -388,6 +379,7 @@ form.addEventListener('submit', async (evt) => {
         }
 
         document.querySelector('#loading').style.display = 'none';
+        checkTextContainerHeight();
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
         // lastPartial = data.transcription;
         // partialsContainer.textContent = await getTranslation(
