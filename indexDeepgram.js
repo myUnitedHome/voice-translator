@@ -32,15 +32,6 @@ document.getElementById('form').addEventListener('submit', async (event) => {
   let deepgramKey = formData.get('deepgram_key');
   let openAiKey = formData.get('openai_key');
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
->>>>>>> d595791ffcb4dfc60574664e5ccee87b3aaec262
   apiGladiaDiv.classList.add('hidden');
   apiOpenAIDiv.classList.add('hidden');
   keysAndDevice.classList.add('centered');
@@ -74,15 +65,15 @@ document.getElementById('form').addEventListener('submit', async (event) => {
 
   navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
     console.log('Media stream obtained.');
-<<<<<<< HEAD
     // const socket = new WebSocket('wss://api.deepgram.com/v1/listen', ['token', deepgramKey]);
+    // const socket = new WebSocket(
+    //   'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true&interim_results=true',
+    //   ['token', deepgramKey]
+    // );
     const socket = new WebSocket(
-      'wss://api.deepgram.com/v1/listen?endpointing=true&filler_words=true&punctuate=true&smart_format=true&interim_results=true',
+      'wss://api.deepgram.com/v1/listen?endpointing=true',
       ['token', deepgramKey]
     );
-=======
-    const socket = new WebSocket('wss://api.deepgram.com/v1/listen?endpointing=true', ['token', deepgramKey]);
->>>>>>> d595791ffcb4dfc60574664e5ccee87b3aaec262
 
     socket.onopen = () => {
       console.log('WebSocket connection established.');

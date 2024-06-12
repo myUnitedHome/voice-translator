@@ -10,6 +10,8 @@ const FINAL_CONFIDENCE = 0.7; // if the confidence final is lower than this we a
 const ENDPOINTING = 100; //duration of silence which will cause the utterance to be considered finished and a result of type ‘final’ to be sent.
 const AUDIO_ENHANCER = true;
 
+let selectedLanguage = 'Spanish'; // Valor por defecto
+
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
  */
@@ -90,8 +92,6 @@ const getTranslation = async (text, openAiKey, stream) => {
   }
 };
 
-<<<<<<< HEAD
-=======
 // function checkAndResetContainer(container) {
 //   const lines = container.textContent.split('\n');
 //   if (lines.length >= MAX_LINES) {
@@ -101,8 +101,14 @@ const getTranslation = async (text, openAiKey, stream) => {
 //   }
 // }
 
+function handleLanguageChange() {
+  const languageSelect = document.getElementById('language');
+  selectedLanguage = languageSelect.value;
+  console.log(`Language selected: ${selectedLanguage}`);
+}
+
 function checkAndResetContainer(container) {
-  console.log("Checking container")
+  console.log('Checking container');
   const lines = container.textContent.split('\n');
   console.log(lines.length);
   if (lines.length >= MAX_LINES) {
@@ -110,7 +116,6 @@ function checkAndResetContainer(container) {
   }
 }
 
->>>>>>> d595791ffcb4dfc60574664e5ccee87b3aaec262
 // Initialize the audio input devices
 async function listAudioDevices() {
   /** @type {HTMLSelectElement} */
@@ -356,10 +361,8 @@ form.addEventListener('submit', async (evt) => {
           USE_STREAM
         );
         if (translation) {
-
           //empty finalsContiner if we have a lot of lines
           checkAndResetContainer(finalsContainer);
-
 
           finalsContainer.textContent += translation + '\n';
         }
