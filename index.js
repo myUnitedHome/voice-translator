@@ -5,7 +5,7 @@ const MAX_LINES = 7;
 const USE_GROQ = false;
 const USE_STREAM = true;
 const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
-const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
+const FINAL_CONFIDENCE = 0.7; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
 
 const ENDPOINTING = 100; //duration of silence which will cause the utterance to be considered finished and a result of type ‘final’ to be sent.
 const AUDIO_ENHANCER = true;
@@ -90,6 +90,27 @@ const getTranslation = async (text, openAiKey, stream) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+// function checkAndResetContainer(container) {
+//   const lines = container.textContent.split('\n');
+//   if (lines.length >= MAX_LINES) {
+//     setTimeout(() => {
+//       container.textContent = ''; // Limpiar el contenido del contenedor
+//     }, 10000); // Esperar 3 segundos antes de limpiar la pantalla
+//   }
+// }
+
+function checkAndResetContainer(container) {
+  console.log("Checking container")
+  const lines = container.textContent.split('\n');
+  console.log(lines.length);
+  if (lines.length >= MAX_LINES) {
+    container.textContent = ''; // Limpiar el contenido del contenedor solo cuando se superen las 4 líneas
+  }
+}
+
+>>>>>>> d595791ffcb4dfc60574664e5ccee87b3aaec262
 // Initialize the audio input devices
 async function listAudioDevices() {
   /** @type {HTMLSelectElement} */
@@ -335,6 +356,11 @@ form.addEventListener('submit', async (evt) => {
           USE_STREAM
         );
         if (translation) {
+
+          //empty finalsContiner if we have a lot of lines
+          checkAndResetContainer(finalsContainer);
+
+
           finalsContainer.textContent += translation + '\n';
         }
         partialsContainer.textContent = '';
@@ -345,11 +371,11 @@ form.addEventListener('submit', async (evt) => {
 
         document.querySelector('#loading').style.display = 'none';
       } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        // lastPartial = data.transcription;
-        // partialsContainer.textContent = await getTranslation(
-        //   data.transcription,
-        //   openAiKey
-        // );
+        lastPartial = data.transcription;
+        partialsContainer.textContent = await getTranslation(
+          data.transcription,
+          openAiKey
+        );
       }
     }
   };
