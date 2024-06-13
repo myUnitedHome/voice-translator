@@ -348,6 +348,8 @@ form.addEventListener('submit', async (evt) => {
         const buffer = await blob.arrayBuffer();
         const modifiedBuffer = buffer.slice(44);
         socket?.send(modifiedBuffer);
+        if (recorder)
+          recorder.getInternalRecorder().freeMemory()
       },
       sampleRate: SAMPLE_RATE,
       desiredSampRate: SAMPLE_RATE,
