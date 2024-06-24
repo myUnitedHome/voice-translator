@@ -1,14 +1,14 @@
 // Specifies the sample rate of the audio in Hz. Valid values are 8000, 16000, 32000, 44100, and 48000. default value is 16000
 const SAMPLE_RATE = 48000; // Baja el sample rate si la latencia es más crítica que la calidad
 
-const MAX_LINES = 7;
+const MAX_LINES = 4;
+
 const USE_GROQ = false;
 const USE_STREAM = true;
-const TIME_SLICE = 300; // Intervalo más corto para fragmentos de audio
-const FINAL_CONFIDENCE = 0.7; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
+const TIME_SLICE = 200; // Intervalo más corto para fragmentos de audio
 
-const ENDPOINTING = 100; //duration of silence which will cause the utterance to be considered finished and a result of type ‘final’ to be sent.
-const AUDIO_ENHANCER = true;
+const FINAL_CONFIDENCE = 0.6; // if the confidence final is lower than this we are not using the transcription, in some cases the noise generate random transcriptions with low confidence
+
 
 /**
  * @returns {{promise: Promise<any>; resolve(value: any): void; reject(err: any): void;}}
@@ -31,7 +31,7 @@ const getTranslation = async (text, openAiKey, stream) => {
     model = 'llama3-8b-8192';
   }
 
-  let prompt = 'You an English to Spanish Translator, reply ONLY with the translation to spanish of the text, the words United Roofing toghether are the only exception dont Translate them Just write United Roofing, also all the you that you read in the transcript is for an audience so translate this into plural in spanish the verbs and everything';
+  let prompt = 'You are an English to Spanish translator. Reply ONLY with the Spanish translation of the text. Do not translate "United Roofing," write it as is. Translate "you" in the text to the plural form in Spanish (verbs and everything).';
 
   const url = `${baseUrl}/chat/completions`;
   const response = await fetch(url, {
@@ -55,7 +55,6 @@ const getTranslation = async (text, openAiKey, stream) => {
       stream
     }),
   });
-
 
   if (response.ok && stream) {
     const reader = response.body?.pipeThrough(new TextDecoderStream()).getReader();
@@ -89,19 +88,9 @@ const getTranslation = async (text, openAiKey, stream) => {
   }
 };
 
-// function checkAndResetContainer(container) {
-//   const lines = container.textContent.split('\n');
-//   if (lines.length >= MAX_LINES) {
-//     setTimeout(() => {
-//       container.textContent = ''; // Limpiar el contenido del contenedor
-//     }, 10000); // Esperar 3 segundos antes de limpiar la pantalla
-//   }
-// }
 
 function checkAndResetContainer(container) {
-  console.log("Checking container")
   const lines = container.textContent.split('\n');
-  console.log(lines.length);
   if (lines.length >= MAX_LINES) {
     container.textContent = ''; // Limpiar el contenido del contenedor solo cuando se superen las 4 líneas
   }
@@ -198,8 +187,12 @@ form.addEventListener('submit', async (evt) => {
 
   // Parse submitted data
   const formData = new FormData(form);
-  let gladiaKey = formData.get('gladia_key');
+  let deepgramKey = formData.get('deepgram_key');
   let openAiKey = formData.get('openai_key');
+
+
+
+
 
   const inputDevice = formData.get('input_device');
 
@@ -256,19 +249,15 @@ form.addEventListener('submit', async (evt) => {
 
     // Initializes the websocket
     socket = new WebSocket(
-      'wss://api.gladia.io/audio/text/audio-transcription'
+      `wss://api.deepgram.com/v1/listen`,
+      [
+        'token',
+        deepgramKey,
+      ]
+
     );
     socket.onopen = () => {
-      // Check https://docs.gladia.io/reference/live-audio for more information about the parameters
-      const configuration = {
-        x_gladia_key: gladiaKey,
-        frames_format: 'bytes',
-        language_behaviour: 'manual',
-        language: 'english',
-        sample_rate: SAMPLE_RATE,
-        translation: true,
-      };
-      socket.send(JSON.stringify(configuration));
+      socketPromise.resolve(true);
     };
     socket.onerror = () => {
       socketPromise.reject(new Error(`Couldn't connect to the server`));
@@ -280,24 +269,6 @@ form.addEventListener('submit', async (evt) => {
         )
       );
     };
-    socket.onmessage = (event) => {
-      let data;
-      try {
-        data = JSON.parse(event.data);
-      } catch (err) {
-        socketPromise.reject(
-          new Error(`Cannot parse the message: ${event.data}`)
-        );
-      }
-
-      if (data?.event === 'connected') {
-        socketPromise.resolve(true);
-      } else {
-        socketPromise.reject(
-          new Error(`Server sent an unexpected message: ${event.data}`)
-        );
-      }
-    };
 
     // Get the input stream
     audioStream = await navigator.mediaDevices.getUserMedia({
@@ -307,8 +278,6 @@ form.addEventListener('submit', async (evt) => {
     recorder = new RecordRTC(audioStream, {
       type: 'audio',
       mimeType: 'audio/wav',
-      // mimeType: 'audio/webm;codecs=opus',
-      recorderType: RecordRTC.StereoAudioRecorder,
       timeSlice: TIME_SLICE, // Intervalo más corto para fragmentos de audio
       async ondataavailable(blob) {
         const buffer = await blob.arrayBuffer();
@@ -338,39 +307,29 @@ form.addEventListener('submit', async (evt) => {
     stop();
   };
 
-
   let lastPartial = '';
 
   socket.onmessage = async (event) => {
-    document.querySelector('#loading').style.display = 'inline-block';
-    const data = JSON.parse(event.data);
-    console.log(data);
-    if (data?.event === 'transcript' && data.transcription) {
-      if (data.type === 'final' && data.confidence >= FINAL_CONFIDENCE) {
-        const translation = await getTranslation(data.transcription, openAiKey, USE_STREAM);
+    //const data = JSON.parse(event.data);
+    //console.log(data);
+    const received = JSON.parse(message.data)
+    const transcript = received.channel.alternatives[0].transcript
+
+    if (transcript && received.is_fina) {
+        const translation = await getTranslation(transcript, openAiKey, USE_STREAM);
         if (translation) {
-
-          //empty finalsContiner if we have a lot of lines
-          checkAndResetContainer(finalsContainer);
-
-
           finalsContainer.textContent += translation + '\n';
         }
         partialsContainer.textContent = '';
-        if (data.transcription.includes(lastPartial)) {
+        if (data.channel.alternatives[0].transcript.includes(lastPartial)) {
           partialsContainer.textContent = '';
           lastPartial = '';
         }
-        document.querySelector('#loading').style.display = 'none';
 
-      } else if (data.type === 'partial' && data.confidence >= 0.8) {
-        lastPartial = data.transcription;
-        partialsContainer.textContent = await getTranslation(
-          data.transcription,
-          openAiKey
-        );
+    } else {
+      if (data.channel.alternatives[0].confidence >= FINAL_CONFIDENCE) {
+        lastPartial = data.channel.alternatives[0].transcript;
       }
-
     }
   };
 

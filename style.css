@@ -87,13 +87,14 @@ button {
   padding-top: 1rem;
   text-align: justify;
   box-sizing: border-box;
-  margin-top: 13rem;
+  margin-top: 20rem;
 }
 
 #partials,
 #finals,
 #result {
-  font-size: 4rem;
+  font-size: 2rem; /* Ajusta el tamaño de fuente según sea necesario */
+  /* white-space: pre-wrap; Mantener los saltos de línea */
 }
 
 #microphone {
@@ -153,5 +154,44 @@ button.recordingIndicator {
   #finals,
   #result {
     font-size: 2rem;
+  }
+}
+
+#finals{
+  margin-top: 5%;
+}
+
+
+
+.dots-container {
+  font-size: 2rem;
+  display: flex;
+}
+
+.dot {
+  opacity: 0;
+  animation: blink 2s infinite step-start;
+  margin: 0; /* Remove margin to bring dots closer */
+  padding: 0 2px; /* Adjust padding to control the spacing */
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.5s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 1s;
+}
+
+@keyframes blink {
+  0%, 100% {
+      opacity: 0;
+  }
+  50% {
+      opacity: 1;
   }
 }
